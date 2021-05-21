@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ungbigc/utility/my_constant.dart';
+import 'package:ungbigc/utility/my_style.dart';
 import 'package:ungbigc/widgets/show_image.dart';
 import 'package:ungbigc/widgets/show_title.dart';
 
@@ -20,13 +21,49 @@ class _AuthenState extends State<Authen> {
             child: Column(
               children: [
                 buildImage(size),
-                ShowTitle(),
+                buildShowTitle(),
                 buildUser(size),
                 buildPassword(size),
+                buildLogin(size),
+                buildRow()
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  ShowTitle buildShowTitle() {
+    return ShowTitle(
+                title: 'Ung BigC',
+                textStyle: MyStyle().h1Style(),
+              );
+  }
+
+  Row buildRow() {
+    return Row(mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ShowTitle(
+                    title: 'Non Account ? ',
+                    textStyle: MyStyle().h3tyle(),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/createAccount'),
+                    child: Text('Create Account'),
+                  ),
+                ],
+              );
+  }
+
+  Container buildLogin(double size) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 16),
+      width: size * 0.6,
+      child: ElevatedButton(
+        style: MyStyle().myButtonStyle(),
+        onPressed: () {},
+        child: Text('Login'),
       ),
     );
   }
