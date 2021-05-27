@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ungbigc/model/user_model.dart';
 import 'package:ungbigc/utility/my_constant.dart';
 import 'package:ungbigc/utility/my_dialog.dart';
@@ -91,7 +92,7 @@ class _AuthenState extends State<Authen> {
     print('### user = $user, password = $password');
     String api =
         'https://www.androidthai.in.th/bigc/getUserWhereUser.php?isAdd=true&user=$user';
-    await Dio().get(api).then((value) {
+    await Dio().get(api).then((value) async {
       print('## value ==>> $value');
 
       if (value.toString() == 'null') {
@@ -102,6 +103,12 @@ class _AuthenState extends State<Authen> {
         for (var item in result) {
           UserModel model = UserModel.fromMap(item);
           if (password == model.password) {
+            SharedPreferences preferences =
+                await SharedPreferences.getInstance();
+            preferences.setString('user', model.user);
+            preferences.setString('name', model.name);
+            preferences.setString('id', model.id);
+
             Navigator.pushNamedAndRemoveUntil(
                 context, '/serviceUser', (route) => false);
           } else {
