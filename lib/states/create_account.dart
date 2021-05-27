@@ -14,6 +14,10 @@ class _CreateAccountState extends State<CreateAccount> {
   double? lat, lng;
   bool load = true;
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController userController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   final formField = GlobalKey<FormState>();
 
   @override
@@ -45,6 +49,7 @@ class _CreateAccountState extends State<CreateAccount> {
       margin: EdgeInsets.only(top: 16),
       width: size * 0.6,
       child: TextFormField(
+        controller: nameController,
         validator: (value) {
           if (value!.isEmpty) {
             return 'Please Fill Name in Blank';
@@ -65,6 +70,10 @@ class _CreateAccountState extends State<CreateAccount> {
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: MyConstant.dart),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.red),
+          ),
         ),
         keyboardType: TextInputType.text,
       ),
@@ -76,6 +85,14 @@ class _CreateAccountState extends State<CreateAccount> {
       margin: EdgeInsets.only(top: 16),
       width: size * 0.6,
       child: TextFormField(
+        controller: userController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Please Fill User in Blank';
+          } else {
+            return null;
+          }
+        },
         decoration: InputDecoration(
           labelText: 'User :',
           prefixIcon: Icon(
@@ -89,6 +106,10 @@ class _CreateAccountState extends State<CreateAccount> {
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: MyConstant.dart),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.red),
+          ),
         ),
         keyboardType: TextInputType.text,
       ),
@@ -100,6 +121,14 @@ class _CreateAccountState extends State<CreateAccount> {
       margin: EdgeInsets.only(top: 16),
       width: size * 0.6,
       child: TextFormField(
+        controller: passwordController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Please Fill Password in Blank';
+          } else {
+            return null;
+          }
+        },
         decoration: InputDecoration(
           labelText: 'Password :',
           prefixIcon: Icon(
@@ -112,6 +141,10 @@ class _CreateAccountState extends State<CreateAccount> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: MyConstant.dart),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.red),
           ),
         ),
         keyboardType: TextInputType.text,
@@ -135,14 +168,16 @@ class _CreateAccountState extends State<CreateAccount> {
     return Center(
       child: Form(
         key: formField,
-        child: Column(
-          children: [
-            buildName(size),
-            buildUser(size),
-            buildPassword(size),
-            buildMap(size),
-            buildCreateAccount(size),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              buildName(size),
+              buildUser(size),
+              buildPassword(size),
+              buildMap(size),
+              buildCreateAccount(size),
+            ],
+          ),
         ),
       ),
     );
@@ -156,7 +191,10 @@ class _CreateAccountState extends State<CreateAccount> {
         style: MyStyle().myButtonStyle(),
         onPressed: () {
           if (formField.currentState!.validate()) {
-            
+            String name = nameController.text;
+            String user = userController.text;
+            String password = passwordController.text;
+            print('name = $name, user = $user, password = $password, lat = $lat, lng = $lng');
           }
         },
         icon: Icon(Icons.cloud_upload_outlined),
@@ -176,19 +214,18 @@ class _CreateAccountState extends State<CreateAccount> {
     ].toSet();
   }
 
-  Expanded buildMap(double size) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 16),
-        width: size * 0.8,
-        child: GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: LatLng(lat!, lng!),
-            zoom: 16,
-          ),
-          onMapCreated: (controller) {},
-          markers: setMarkers(),
+  Container buildMap(double size) {
+    return Container(
+      height: 200,
+      margin: EdgeInsets.symmetric(vertical: 16),
+      width: size * 0.8,
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(lat!, lng!),
+          zoom: 16,
         ),
+        onMapCreated: (controller) {},
+        markers: setMarkers(),
       ),
     );
   }
