@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:ungbigc/model/user_model.dart';
 import 'package:ungbigc/utility/my_constant.dart';
+import 'package:ungbigc/utility/my_dialog.dart';
 import 'package:ungbigc/utility/my_style.dart';
 import 'package:ungbigc/widgets/show_image.dart';
 import 'package:ungbigc/widgets/show_title.dart';
@@ -10,6 +15,10 @@ class Authen extends StatefulWidget {
 }
 
 class _AuthenState extends State<Authen> {
+  final formKey = GlobalKey<FormState>();
+  TextEditingController userController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     double size = MediaQuery.of(context).size.width;
@@ -18,15 +27,18 @@ class _AuthenState extends State<Authen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                buildImage(size),
-                buildShowTitle(),
-                buildUser(size),
-                buildPassword(size),
-                buildLogin(size),
-                buildRow()
-              ],
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  buildImage(size),
+                  buildShowTitle(),
+                  buildUser(size),
+                  buildPassword(size),
+                  buildLogin(size),
+                  buildRow()
+                ],
+              ),
             ),
           ),
         ),
@@ -36,24 +48,25 @@ class _AuthenState extends State<Authen> {
 
   ShowTitle buildShowTitle() {
     return ShowTitle(
-                title: 'Ung BigC',
-                textStyle: MyStyle().h1Style(),
-              );
+      title: 'Ung BigC',
+      textStyle: MyStyle().h1Style(),
+    );
   }
 
   Row buildRow() {
-    return Row(mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ShowTitle(
-                    title: 'Non Account ? ',
-                    textStyle: MyStyle().h3tyle(),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/createAccount'),
-                    child: Text('Create Account'),
-                  ),
-                ],
-              );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ShowTitle(
+          title: 'Non Account ? ',
+          textStyle: MyStyle().h3tyle(),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pushNamed(context, '/createAccount'),
+          child: Text('Create Account'),
+        ),
+      ],
+    );
   }
 
   Container buildLogin(double size) {
@@ -62,10 +75,42 @@ class _AuthenState extends State<Authen> {
       width: size * 0.6,
       child: ElevatedButton(
         style: MyStyle().myButtonStyle(),
-        onPressed: () {},
+        onPressed: () {
+          if (formKey.currentState!.validate()) {
+            cheackAughen(
+                user: userController.text, password: passwordController.text);
+          }
+        },
         child: Text('Login'),
       ),
     );
+  }
+
+  Future<Null> cheackAughen(
+      {@required String? user, @required String? password}) async {
+    print('### user = $user, password = $password');
+    String api =
+        'https://www.androidthai.in.th/bigc/getUserWhereUser.php?isAdd=true&user=$user';
+    await Dio().get(api).then((value) {
+      print('## value ==>> $value');
+
+      if (value.toString() == 'null') {
+        normalDialog(context, 'User False', 'No $user in my Database');
+      } else {
+        var result = json.decode(value.data);
+        print('### result ==> $result');
+        for (var item in result) {
+          UserModel model = UserModel.fromMap(item);
+          if (password == model.password) {
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/serviceUser', (route) => false);
+          } else {
+            normalDialog(
+                context, 'Password False', 'Please Try Again Password false');
+          }
+        }
+      }
+    });
   }
 
   Container buildUser(double size) {
@@ -73,6 +118,14 @@ class _AuthenState extends State<Authen> {
       margin: EdgeInsets.only(top: 16),
       width: size * 0.6,
       child: TextFormField(
+        controller: userController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'โปรด กรอก User';
+          } else {
+            return null;
+          }
+        },
         decoration: InputDecoration(
           labelText: 'User :',
           prefixIcon: Icon(
@@ -86,6 +139,10 @@ class _AuthenState extends State<Authen> {
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: MyConstant.dart),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.red),
+          ),
         ),
         keyboardType: TextInputType.text,
       ),
@@ -97,6 +154,14 @@ class _AuthenState extends State<Authen> {
       margin: EdgeInsets.only(top: 16),
       width: size * 0.6,
       child: TextFormField(
+        controller: passwordController,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Please Fill Password';
+          } else {
+            return null;
+          }
+        },
         obscureText: true,
         decoration: InputDecoration(
           suffixIcon: IconButton(
@@ -114,6 +179,10 @@ class _AuthenState extends State<Authen> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: MyConstant.dart),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: Colors.red),
           ),
         ),
         keyboardType: TextInputType.text,

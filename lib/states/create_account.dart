@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ungbigc/utility/my_constant.dart';
+import 'package:ungbigc/utility/my_dialog.dart';
 import 'package:ungbigc/utility/my_style.dart';
 import 'package:ungbigc/widgets/show_progress.dart';
 
@@ -194,12 +196,38 @@ class _CreateAccountState extends State<CreateAccount> {
             String name = nameController.text;
             String user = userController.text;
             String password = passwordController.text;
-            print('name = $name, user = $user, password = $password, lat = $lat, lng = $lng');
+            print(
+                'name = $name, user = $user, password = $password, lat = $lat, lng = $lng');
+            insertNewUser(name: name, user: user, password: password);
           }
         },
         icon: Icon(Icons.cloud_upload_outlined),
         label: Text('Create Account'),
       ),
+    );
+  }
+
+  Future<Null> insertNewUser(
+      {String? name, String? user, String? password}) async {
+    String apiCheckUser =
+        'https://www.androidthai.in.th/bigc/getUserWhereUser.php?isAdd=true&user=$user';
+    await Dio().get(apiCheckUser).then(
+      (value) async {
+        print('## value = $value');
+        if (value.toString() != 'null') {
+          normalDialog(context, 'User Dulicape', 'Please Change User');
+        } else {
+          String apiInsertUser =
+              'https://www.androidthai.in.th/bigc/insertUser.php?isAdd=true&name=$name&user=$user&password=$password&lat=$lat&lng=$lng';
+          await Dio().get(apiInsertUser).then((value) {
+            if (value.toString() == 'true') {
+              Navigator.pop(context);
+            } else {
+              normalDialog(context, 'Error', 'Please Try Again');
+            }
+          });
+        }
+      },
     );
   }
 

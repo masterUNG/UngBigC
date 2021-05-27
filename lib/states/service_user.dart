@@ -10,7 +10,7 @@ class _ServiceUserState extends State<ServiceUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      appBar: AppBar(title: Text('Welcome User'),),
     );
   }
 }
