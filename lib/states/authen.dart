@@ -26,19 +26,25 @@ class _AuthenState extends State<Authen> {
     print('size = $size');
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  buildImage(size),
-                  buildShowTitle(),
-                  buildUser(size),
-                  buildPassword(size),
-                  buildLogin(size),
-                  buildRow()
-                ],
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: (){
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: Center(
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    buildImage(size),
+                    buildShowTitle(),
+                    buildUser(size),
+                    buildPassword(size),
+                    buildLogin(size),
+                    buildRow()
+                  ],
+                ),
               ),
             ),
           ),

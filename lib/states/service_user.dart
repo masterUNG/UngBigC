@@ -5,8 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ungbigc/model/product_model.dart';
+import 'package:ungbigc/model/sqlite_model.dart';
 import 'package:ungbigc/utility/my_constant.dart';
 import 'package:ungbigc/utility/my_style.dart';
+import 'package:ungbigc/utility/sqlite_helper.dart';
 import 'package:ungbigc/widgets/show_image.dart';
 import 'package:ungbigc/widgets/show_progress.dart';
 import 'package:ungbigc/widgets/show_title.dart';
@@ -61,6 +63,7 @@ class _ServiceUserState extends State<ServiceUser> {
         title: Text('Welcome User'),
         backgroundColor: MyConstant.primary,
         actions: [
+          buildIShowCart(context),
           buildSignOut(),
         ],
       ),
@@ -73,6 +76,13 @@ class _ServiceUserState extends State<ServiceUser> {
           ],
         ),
       ),
+    );
+  }
+
+  IconButton buildIShowCart(BuildContext context) {
+    return IconButton(
+      onPressed: () => Navigator.pushNamed(context, '/showCart'),
+      icon: Icon(Icons.shopping_cart),
     );
   }
 
@@ -115,15 +125,46 @@ class _ServiceUserState extends State<ServiceUser> {
               title: model.detail,
               textStyle: MyStyle().h3tyle(),
             ),
-          ),Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Add Cart'),),
-              TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Cancel'),),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  processAddCart(model);
+                },
+                child: Text('Add Cart'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Future<Null> processAddCart(ProductModel productModel) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? idUser = preferences.getString('id');
+    String? nameUser = preferences.getString('name');
+
+    SQLiteModel model = SQLiteModel(
+        id: null,
+        idUser: idUser!,
+        nameUser: nameUser!,
+        idProduct: productModel.id,
+        nameProduct: productModel.nameFood,
+        price: productModel.price,
+        amount: '1',
+        sum: productModel.price);
+
+    await SQLiteHelper()
+        .insertValueSQLite(model)
+        .then((value) => print('#### processAddCart Success ###'));
   }
 
   ListView buildListView() {

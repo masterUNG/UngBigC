@@ -4,12 +4,14 @@ import 'package:ungbigc/states/authen.dart';
 import 'package:ungbigc/states/create_account.dart';
 import 'package:ungbigc/states/service_admin.dart';
 import 'package:ungbigc/states/service_user.dart';
+import 'package:ungbigc/states/show_cart.dart';
 
 final Map<String, WidgetBuilder> map = {
   '/authen': (BuildContext context) => Authen(),
   '/createAccount': (BuildContext context) => CreateAccount(),
   '/serviceAdmin': (BuildContext context) => ServiceAdmin(),
   '/serviceUser': (BuildContext context) => ServiceUser(),
+  '/showCart':(BuildContext context)=> ShowCart(),
 };
 
 String? initialRoute;
